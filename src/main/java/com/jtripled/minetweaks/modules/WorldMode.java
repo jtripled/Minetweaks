@@ -7,7 +7,6 @@ import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
-import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.world.storage.WorldProperties;
 
 /**
@@ -19,7 +18,7 @@ public class WorldMode
     @Listener
     public void onPlayerTeleport(MoveEntityEvent.Teleport event, @Getter("getTargetEntity") Player player)
     {
-        if (player.hasPermission("tweaks.worldmode.bypass"))
+        if (player.hasPermission("minetweaks.worldmode.bypass"))
         {
             return;
         }
@@ -48,6 +47,11 @@ public class WorldMode
         else
         {
             mode = to.getGameMode();
+        }
+        
+        if (mode == player.require(Keys.GAME_MODE))
+        {
+            return;
         }
         
         player.offer(Keys.GAME_MODE, mode);
