@@ -13,6 +13,7 @@ import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.game.GameReloadEvent;
@@ -54,7 +55,7 @@ public class Caffeine
         loader.save(rootNode);
     }
     
-    @Listener
+    @Listener(order = Order.LAST)
     public void onPlayerInteract(InteractBlockEvent.Secondary event, @First Player player)
     {
         BlockSnapshot block = event.getTargetBlock();

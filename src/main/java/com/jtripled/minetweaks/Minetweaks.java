@@ -57,48 +57,6 @@ public class Minetweaks
     private Path configDir;
 
     private ConfigurationNode rootNode;
-
-    @Listener
-    public void onPreInitialization(GamePreInitializationEvent event) throws IOException
-    {
-        INSTANCE = this;
-        loadConfig();
-    }
-    
-    @Listener
-    public void onReload(GameReloadEvent event) throws IOException
-    {
-        loadConfig();
-    }
-    
-    private void loadConfig() throws IOException
-    {
-        if (Files.notExists(defaultConfig))
-        {
-            Sponge.getAssetManager().getAsset(this, "minetweaks.conf").get().copyToDirectory(configDir);
-        }
-        rootNode = loader.load();
-        Asset asset = Sponge.getAssetManager().getAsset(this, "minetweaks.conf").get();
-        rootNode.mergeValuesFrom(HoconConfigurationLoader.builder().setURL(asset.getUrl()).build().load());
-        loader.save(rootNode);
-    }
-    
-    @Listener
-    public void onInitialization(GameInitializationEvent event) throws IOException
-    {
-        if (rootNode.getNode("caffeine").getBoolean())
-        {
-            Sponge.getEventManager().registerListeners(this, new Caffeine());
-        }
-        if (rootNode.getNode("noportals").getBoolean())
-        {
-            Sponge.getEventManager().registerListeners(this, new NoPortals());
-        }
-        if (rootNode.getNode("worldmode").getBoolean())
-        {
-            Sponge.getEventManager().registerListeners(this, new WorldMode());
-        }
-    }
     
     public static Minetweaks getInstance()
     {
@@ -118,5 +76,47 @@ public class Minetweaks
     public static Path getConfigDirectory()
     {
         return INSTANCE.configDir;
+    }
+    
+    private void loadConfig() throws IOException
+    {
+        if (Files.notExists(defaultConfig))
+        {
+            Sponge.getAssetManager().getAsset(this, "minetweaks.conf").get().copyToDirectory(configDir);
+        }
+        rootNode = loader.load();
+        Asset asset = Sponge.getAssetManager().getAsset(this, "minetweaks.conf").get();
+        rootNode.mergeValuesFrom(HoconConfigurationLoader.builder().setURL(asset.getUrl()).build().load());
+        loader.save(rootNode);
+    }
+
+    @Listener
+    public void onPreInitialization(GamePreInitializationEvent event) throws IOException
+    {
+        INSTANCE = this;
+        loadConfig();
+    }
+    
+    @Listener
+    public void onInitialization(GameInitializationEvent event) throws IOException
+    {
+        if (rootNode.getNode("caffeine").getBoolean())
+        {
+            Sponge.getEventManager().registerListeners(this, new Caffeine());
+        }
+        if (rootNode.getNode("noportals").getBoolean())
+        {
+            Sponge.getEventManager().registerListeners(this, new NoPortals());
+        }
+        if (rootNode.getNode("worldmode").getBoolean())
+        {
+            Sponge.getEventManager().registerListeners(this, new WorldMode());
+        }
+    }
+    
+    @Listener
+    public void onReload(GameReloadEvent event) throws IOException
+    {
+        loadConfig();
     }
 }

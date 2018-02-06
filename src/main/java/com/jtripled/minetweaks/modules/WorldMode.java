@@ -18,6 +18,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.game.GameReloadEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.world.storage.WorldProperties;
 
 /**
@@ -54,9 +55,30 @@ public class WorldMode
     }
     
     @Listener
+    public void onPlayerJoin(ClientConnectionEvent.Join event)
+    {
+        Player player = event.getTargetEntity();
+        
+        if (hasBypassPermission(player))
+        {
+            return;
+        }
+        
+        WorldProperties world = player.getWorld().getProperties();
+        GameMode mode = getWorldGameMode(world);
+        
+        if (mode == player.require(Keys.GAME_MODE))
+        {
+            return;
+        }
+        
+        player.offer(Keys.GAME_MODE, mode);
+    }
+    
+    @Listener
     public void onPlayerTeleport(MoveEntityEvent.Teleport event, @Getter("getTargetEntity") Player player)
     {
-        if (player.hasPermission("minetweaks.worldmode.bypass"))
+        if (hasBypassPermission(player))
         {
             return;
         }
@@ -69,8 +91,25 @@ public class WorldMode
             return;
         }
         
-        String override = rootNode.getNode("world-override", to.getWorldName()).getString();
+        GameMode mode = getWorldGameMode(to);
+        
+        if (mode == player.require(Keys.GAME_MODE))
+        {
+            return;
+        }
+        
+        player.offer(Keys.GAME_MODE, mode);
+    }
+    
+    private boolean hasBypassPermission(Player player)
+    {
+        return player.hasPermission("minetweaks.worldmode.bypass");
+    }
+    
+    private GameMode getWorldGameMode(WorldProperties world)
+    {
         GameMode mode;
+        String override = rootNode.getNode("world-override", world.getWorldName()).getString();
         
         if (override != null)
         {
@@ -84,14 +123,9 @@ public class WorldMode
         }
         else
         {
-            mode = to.getGameMode();
+            mode = world.getGameMode();
         }
         
-        if (mode == player.require(Keys.GAME_MODE))
-        {
-            return;
-        }
-        
-        player.offer(Keys.GAME_MODE, mode);
+        return mode;
     }
 }
