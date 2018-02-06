@@ -1,10 +1,13 @@
 package com.jtripled.minetweaks.modules;
 
 import com.jtripled.minetweaks.Minetweaks;
-import static com.jtripled.minetweaks.Minetweaks.INSTANCE;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -13,7 +16,6 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.game.GameReloadEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.title.Title;
@@ -25,6 +27,8 @@ import org.spongepowered.api.util.RespawnLocation;
  */
 public class Caffeine
 {
+    private ConfigurationNode rootNode;
+    
     public Caffeine() throws IOException
     {
         loadConfig();
@@ -38,13 +42,15 @@ public class Caffeine
     
     private void loadConfig() throws IOException
     {
-        if (Files.notExists(path))
+        Path configPath = Minetweaks.getConfigDirectory().resolve("caffeine.conf");
+        ConfigurationLoader<CommentedConfigurationNode> loader = HoconConfigurationLoader.builder().setPath(configPath).build();
+        if (Files.notExists(configPath))
         {
-            Sponge.getAssetManager().getAsset(this, "default.conf").get().copyToFile(path);
+            Sponge.getAssetManager().getAsset(Minetweaks.INSTANCE, "caffeine.conf").get().copyToDirectory(Minetweaks.getConfigDirectory());
         }
         rootNode = loader.load();
-        Asset asset = Sponge.getAssetManager().getAsset(this, "default.conf").get();
-        rootNode.mergeValuesFrom(HoconConfigurationLoader.builder().setURL(asset.getUrl()).build().load());
+        Asset asset = Sponge.getAssetManager().getAsset(Minetweaks.INSTANCE, "caffeine.conf").get();
+        rootNode.mergeValuesFrom(loader.load());
         loader.save(rootNode);
     }
     

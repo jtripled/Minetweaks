@@ -14,6 +14,7 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
@@ -45,11 +46,15 @@ public class Minetweaks
     @Inject
     private PluginContainer pluginContainer;
     
+    @Inject
+    @DefaultConfig(sharedRoot = false)
+    private Path defaultConfig;
+    
     @Inject @DefaultConfig(sharedRoot = false)
     private ConfigurationLoader <CommentedConfigurationNode> loader;
     
-    @Inject @DefaultConfig(sharedRoot = true)
-    private Path path;
+    @Inject @ConfigDir(sharedRoot = false)
+    private Path configDir;
 
     private ConfigurationNode rootNode;
 
@@ -68,9 +73,9 @@ public class Minetweaks
     
     private void loadConfig() throws IOException
     {
-        if (Files.notExists(path))
+        if (Files.notExists(defaultConfig))
         {
-            Sponge.getAssetManager().getAsset(this, "minetweaks.conf").get().copyToFile(path);
+            Sponge.getAssetManager().getAsset(this, "minetweaks.conf").get().copyToDirectory(configDir);
         }
         rootNode = loader.load();
         Asset asset = Sponge.getAssetManager().getAsset(this, "minetweaks.conf").get();
@@ -79,7 +84,7 @@ public class Minetweaks
     }
     
     @Listener
-    public void onInitialization(GameInitializationEvent event)
+    public void onInitialization(GameInitializationEvent event) throws IOException
     {
         if (rootNode.getNode("caffeine").getBoolean())
         {
@@ -108,5 +113,10 @@ public class Minetweaks
     public static PluginContainer getContainer()
     {
         return INSTANCE.pluginContainer;
+    }
+    
+    public static Path getConfigDirectory()
+    {
+        return INSTANCE.configDir;
     }
 }
