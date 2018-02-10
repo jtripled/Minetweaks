@@ -107,7 +107,7 @@ public class Minetweaks
         }
         if (rootNode.getNode("compressor").getBoolean())
         {
-            new Compressor();
+            Sponge.getEventManager().registerListeners(this, new Compressor());
         }
         if (rootNode.getNode("noportals").getBoolean())
         {
