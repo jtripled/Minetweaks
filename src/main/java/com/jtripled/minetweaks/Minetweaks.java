@@ -3,6 +3,7 @@ package com.jtripled.minetweaks;
 import com.google.inject.Inject;
 import com.jtripled.minetweaks.modules.Caffeine;
 import com.jtripled.minetweaks.modules.Compressor;
+import com.jtripled.minetweaks.modules.Filters;
 import com.jtripled.minetweaks.modules.WorldMode;
 import com.jtripled.minetweaks.modules.NoPortals;
 import java.io.IOException;
@@ -108,6 +109,10 @@ public class Minetweaks
         if (rootNode.getNode("compressor").getBoolean())
         {
             Sponge.getEventManager().registerListeners(this, new Compressor());
+        }
+        if (rootNode.getNode("filters").getBoolean())
+        {
+            Sponge.getEventManager().registerListeners(this, new Filters());
         }
         if (rootNode.getNode("noportals").getBoolean())
         {
